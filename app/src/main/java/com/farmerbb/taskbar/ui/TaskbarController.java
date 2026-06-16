@@ -39,6 +39,7 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -291,6 +292,18 @@ public class TaskbarController extends UIController {
             View handle = layout.findViewById(R.id.sidebar_handle);
             final LinearLayout container = layout.findViewById(R.id.sidebar_container);
             int touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                handle.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                    @Override
+                    public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                               int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                        List<Rect> rects = new ArrayList<>();
+                        rects.add(new Rect(0, 0, right - left, bottom - top));
+                        v.setSystemGestureExclusionRects(rects);
+                    }
+                });
+            }
 
             handle.setOnTouchListener(new View.OnTouchListener() {
                 private float initialTouchY;

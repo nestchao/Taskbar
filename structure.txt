@@ -1,0 +1,582 @@
+Taskbar/
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── Privacy-Policy.md
+├── README.md
+├── app/
+│   ├── build.gradle
+│   └── src/
+│       ├── androidx86/
+│       │   ├── AndroidManifest.xml
+│       │   └── java/
+│       │       ├── com/
+│       │       │   └── farmerbb/
+│       │       │       └── taskbar/
+│       │       │           └── BuildConfig.java
+│       │       ├── dalvik/
+│       │       │   └── system/
+│       │       │       └── VMRuntime.java
+│       │       ├── org/
+│       │       │   └── lsposed/
+│       │       │       └── hiddenapibypass/
+│       │       │           ├── Helper.java
+│       │       │           └── HiddenApiBypass.java
+│       │       └── sun/
+│       │           └── misc/
+│       │               └── Unsafe.java
+│       ├── compat-28/
+│       │   └── java/
+│       │       └── com/
+│       │           └── farmerbb/
+│       │               └── taskbar/
+│       │                   └── util/
+│       │                       └── CompatUtils.java
+│       ├── compat-29/
+│       │   └── java/
+│       │       └── com/
+│       │           └── farmerbb/
+│       │               └── taskbar/
+│       │                   └── util/
+│       │                       └── CompatUtils.java
+│       ├── compat-30/
+│       │   └── java/
+│       │       └── com/
+│       │           └── farmerbb/
+│       │               └── taskbar/
+│       │                   └── util/
+│       │                       └── CompatUtils.java
+│       ├── compat-31/
+│       │   └── java/
+│       │       └── com/
+│       │           └── farmerbb/
+│       │               └── taskbar/
+│       │                   └── util/
+│       │                       └── CompatUtils.java
+│       ├── compat-34/
+│       │   └── java/
+│       │       └── com/
+│       │           └── farmerbb/
+│       │               └── taskbar/
+│       │                   └── util/
+│       │                       └── CompatUtils.java
+│       ├── lib/
+│       │   ├── AndroidManifest.xml
+│       │   ├── java/
+│       │   │   └── com/
+│       │   │       └── farmerbb/
+│       │   │           └── taskbar/
+│       │   │               ├── lib/
+│       │   │               │   └── Taskbar.java
+│       │   │               └── util/
+│       │   │                   └── ShortcutUtils.java
+│       │   └── res/
+│       │       ├── drawable/
+│       │       │   ├── tb_apps.xml
+│       │       │   ├── tb_brush.xml
+│       │       │   ├── tb_error_outline.xml
+│       │       │   ├── tb_settings.xml
+│       │       │   └── tb_web_asset.xml
+│       │       ├── layout/
+│       │       │   └── tb_main.xml
+│       │       ├── values/
+│       │       │   ├── donottranslate.xml
+│       │       │   ├── ids.xml
+│       │       │   └── public.xml
+│       │       └── xml/
+│       │           └── tb_pref_about.xml
+│       ├── main/
+│       │   ├── java/
+│       │   │   └── com/
+│       │   │       └── farmerbb/
+│       │   │           └── taskbar/
+│       │   │               ├── activity/
+│       │   │               │   ├── AbstractProgressActivity.java
+│       │   │               │   ├── AbstractSelectAppActivity.java
+│       │   │               │   ├── BackupRestoreActivity.java
+│       │   │               │   ├── ClearDataActivity.java
+│       │   │               │   ├── ContextMenuActivity.java
+│       │   │               │   ├── DashboardActivity.java
+│       │   │               │   ├── DesktopIconSelectAppActivity.java
+│       │   │               │   ├── DimScreenActivity.java
+│       │   │               │   ├── DummyActivity.java
+│       │   │               │   ├── EnableAdditionalSettingsActivity.java
+│       │   │               │   ├── HSLActivity.java
+│       │   │               │   ├── HSLConfigActivity.java
+│       │   │               │   ├── HomeActivity.java
+│       │   │               │   ├── HomeActivityDelegate.java
+│       │   │               │   ├── IconPackActivity.java
+│       │   │               │   ├── ImportSettingsActivity.java
+│       │   │               │   ├── InvisibleActivity.java
+│       │   │               │   ├── InvisibleActivityAlt.java
+│       │   │               │   ├── InvisibleActivityFreeform.java
+│       │   │               │   ├── KeyboardShortcutActivity.java
+│       │   │               │   ├── KeyboardShortcutActivityLockDevice.java
+│       │   │               │   ├── MainActivity.java
+│       │   │               │   ├── NavigationBarButtonsActivity.java
+│       │   │               │   ├── SecondaryHomeActivity.java
+│       │   │               │   ├── SelectAppActivity.java
+│       │   │               │   ├── ShortcutActivity.java
+│       │   │               │   ├── StartTaskbarActivity.java
+│       │   │               │   ├── TouchAbsorberActivity.java
+│       │   │               │   └── dark/
+│       │   │               │       ├── ClearDataActivityDark.java
+│       │   │               │       ├── ContextMenuActivityDark.java
+│       │   │               │       ├── DashboardActivityDark.java
+│       │   │               │       ├── DesktopIconSelectAppActivityDark.java
+│       │   │               │       ├── EnableAdditionalSettingsActivityDark.java
+│       │   │               │       ├── IconPackActivityDark.java
+│       │   │               │       ├── InvisibleActivityAltDark.java
+│       │   │               │       ├── NavigationBarButtonsActivityDark.java
+│       │   │               │       └── SelectAppActivityDark.java
+│       │   │               ├── adapter/
+│       │   │               │   ├── AppListAdapter.java
+│       │   │               │   ├── DesktopIconAppListAdapter.java
+│       │   │               │   └── StartMenuAdapter.java
+│       │   │               ├── backup/
+│       │   │               │   ├── BackupAgent.java
+│       │   │               │   ├── BackupUtils.java
+│       │   │               │   ├── IntentBackupAgent.java
+│       │   │               │   └── JSONBackupAgent.java
+│       │   │               ├── fragment/
+│       │   │               │   ├── AboutFragment.java
+│       │   │               │   ├── AdvancedFragment.java
+│       │   │               │   ├── AppearanceFragment.java
+│       │   │               │   ├── DesktopModeFragment.java
+│       │   │               │   ├── FreeformModeFragment.java
+│       │   │               │   ├── GeneralFragment.java
+│       │   │               │   ├── ManageAppDataFragment.java
+│       │   │               │   ├── RecentAppsFragment.java
+│       │   │               │   ├── SelectAppFragment.java
+│       │   │               │   └── SettingsFragment.java
+│       │   │               ├── helper/
+│       │   │               │   ├── DashboardHelper.java
+│       │   │               │   ├── DisplayHelper.java
+│       │   │               │   ├── FreeformHackHelper.java
+│       │   │               │   ├── GlobalHelper.java
+│       │   │               │   ├── LauncherHelper.java
+│       │   │               │   ├── MenuHelper.java
+│       │   │               │   └── ToastHelper.java
+│       │   │               ├── receiver/
+│       │   │               │   ├── BootReceiver.java
+│       │   │               │   ├── PackageUpgradeReceiver.java
+│       │   │               │   ├── QuitReceiver.java
+│       │   │               │   ├── ShowHideTaskbarReceiver.java
+│       │   │               │   ├── StartReceiver.java
+│       │   │               │   ├── ToggleFreeformModeReceiver.java
+│       │   │               │   └── UninstallReceiver.java
+│       │   │               ├── service/
+│       │   │               │   ├── DashboardService.java
+│       │   │               │   ├── DisableKeyboardService.java
+│       │   │               │   ├── NotificationCountService.java
+│       │   │               │   ├── NotificationService.java
+│       │   │               │   ├── PowerMenuService.java
+│       │   │               │   ├── QuickSettingsTileService.java
+│       │   │               │   ├── StartMenuService.java
+│       │   │               │   └── TaskbarService.java
+│       │   │               ├── ui/
+│       │   │               │   ├── DashboardController.java
+│       │   │               │   ├── StartMenuController.java
+│       │   │               │   ├── TaskbarController.java
+│       │   │               │   ├── UIController.java
+│       │   │               │   ├── UIHost.java
+│       │   │               │   ├── UIHostService.java
+│       │   │               │   └── ViewParams.java
+│       │   │               ├── util/
+│       │   │               │   ├── AppEntry.java
+│       │   │               │   ├── ApplicationType.java
+│       │   │               │   ├── Blacklist.java
+│       │   │               │   ├── BlacklistEntry.java
+│       │   │               │   ├── Callbacks.java
+│       │   │               │   ├── Constants.java
+│       │   │               │   ├── DesktopIconInfo.java
+│       │   │               │   ├── DisplayInfo.java
+│       │   │               │   ├── FABWrapper.java
+│       │   │               │   ├── IconCache.java
+│       │   │               │   ├── IconPack.java
+│       │   │               │   ├── IconPackManager.java
+│       │   │               │   ├── Lazy.java
+│       │   │               │   ├── PinnedBlockedApps.java
+│       │   │               │   ├── SavedWindowSizes.java
+│       │   │               │   ├── SavedWindowSizesEntry.java
+│       │   │               │   ├── TaskbarPosition.java
+│       │   │               │   ├── ToastFrameworkImpl.java
+│       │   │               │   ├── ToastInterface.java
+│       │   │               │   ├── TopApps.java
+│       │   │               │   └── U.java
+│       │   │               └── widget/
+│       │   │                   ├── DashboardCell.java
+│       │   │                   └── StartMenuLayout.java
+│       │   └── res/
+│       │       ├── anim/
+│       │       │   └── close_anim.xml
+│       │       ├── drawable/
+│       │       │   ├── tb_action_help.xml
+│       │       │   ├── tb_airplanemode_active.xml
+│       │       │   ├── tb_all_apps_button_icon.xml
+│       │       │   ├── tb_android.xml
+│       │       │   ├── tb_battery_20.xml
+│       │       │   ├── tb_battery_30.xml
+│       │       │   ├── tb_battery_50.xml
+│       │       │   ├── tb_battery_60.xml
+│       │       │   ├── tb_battery_80.xml
+│       │       │   ├── tb_battery_90.xml
+│       │       │   ├── tb_battery_alert.xml
+│       │       │   ├── tb_battery_charging_20.xml
+│       │       │   ├── tb_battery_charging_30.xml
+│       │       │   ├── tb_battery_charging_50.xml
+│       │       │   ├── tb_battery_charging_60.xml
+│       │       │   ├── tb_battery_charging_80.xml
+│       │       │   ├── tb_battery_charging_90.xml
+│       │       │   ├── tb_battery_charging_full.xml
+│       │       │   ├── tb_battery_full.xml
+│       │       │   ├── tb_bliss.xml
+│       │       │   ├── tb_bluetooth.xml
+│       │       │   ├── tb_circle.xml
+│       │       │   ├── tb_circle_dark.xml
+│       │       │   ├── tb_desktop_mode.xml
+│       │       │   ├── tb_done.xml
+│       │       │   ├── tb_dummy.xml
+│       │       │   ├── tb_exit_to_app.xml
+│       │       │   ├── tb_monitor.xml
+│       │       │   ├── tb_more_vert.xml
+│       │       │   ├── tb_play_arrow.xml
+│       │       │   ├── tb_reply.xml
+│       │       │   ├── tb_running_app_indicator.xml
+│       │       │   ├── tb_settings_ethernet.xml
+│       │       │   ├── tb_shortcut_icon_background.xml
+│       │       │   ├── tb_shortcut_icon_freeform.xml
+│       │       │   ├── tb_shortcut_icon_start.xml
+│       │       │   ├── tb_signal_cellular_0_bar.xml
+│       │       │   ├── tb_signal_cellular_1_bar.xml
+│       │       │   ├── tb_signal_cellular_2_bar.xml
+│       │       │   ├── tb_signal_cellular_3_bar.xml
+│       │       │   ├── tb_signal_cellular_4_bar.xml
+│       │       │   ├── tb_signal_wifi_0_bar.xml
+│       │       │   ├── tb_signal_wifi_1_bar.xml
+│       │       │   ├── tb_signal_wifi_2_bar.xml
+│       │       │   ├── tb_signal_wifi_3_bar.xml
+│       │       │   ├── tb_signal_wifi_4_bar.xml
+│       │       │   └── tb_web_asset_alt.xml
+│       │       ├── drawable-anydpi-v26/
+│       │       │   ├── tb_play_arrow.xml
+│       │       │   ├── tb_shortcut_icon_freeform.xml
+│       │       │   ├── tb_shortcut_icon_start.xml
+│       │       │   └── tb_web_asset_alt.xml
+│       │       ├── layout/
+│       │       │   ├── tb_activity_hsl_config.xml
+│       │       │   ├── tb_clear_data.xml
+│       │       │   ├── tb_color_picker_pref.xml
+│       │       │   ├── tb_configure_start_menu.xml
+│       │       │   ├── tb_dashboard.xml
+│       │       │   ├── tb_dashboard_size_dialog.xml
+│       │       │   ├── tb_desktop_icon_row.xml
+│       │       │   ├── tb_desktop_icon_select_app.xml
+│       │       │   ├── tb_enable_additional_settings.xml
+│       │       │   ├── tb_freeform_help_dialog.xml
+│       │       │   ├── tb_hsl_row_layout.xml
+│       │       │   ├── tb_icon.xml
+│       │       │   ├── tb_import_settings.xml
+│       │       │   ├── tb_incognito.xml
+│       │       │   ├── tb_row.xml
+│       │       │   ├── tb_row_alt.xml
+│       │       │   ├── tb_row_blacklist.xml
+│       │       │   ├── tb_secondscreen_pref_widget.xml
+│       │       │   ├── tb_seekbar_pref.xml
+│       │       │   ├── tb_select_app.xml
+│       │       │   ├── tb_start_menu_left.xml
+│       │       │   ├── tb_start_menu_right.xml
+│       │       │   ├── tb_start_menu_top_left.xml
+│       │       │   ├── tb_start_menu_top_right.xml
+│       │       │   ├── tb_start_menu_vertical_left.xml
+│       │       │   ├── tb_start_menu_vertical_right.xml
+│       │       │   ├── tb_switch_layout.xml
+│       │       │   ├── tb_system_tray.xml
+│       │       │   ├── tb_tab_layout.xml
+│       │       │   ├── tb_taskbar_left.xml
+│       │       │   ├── tb_taskbar_right.xml
+│       │       │   ├── tb_taskbar_top_vertical.xml
+│       │       │   └── tb_taskbar_vertical.xml
+│       │       ├── menu/
+│       │       │   └── tb_hsl_config.xml
+│       │       ├── values/
+│       │       │   ├── attrs.xml
+│       │       │   ├── colors.xml
+│       │       │   ├── default_values.xml
+│       │       │   ├── dimens.xml
+│       │       │   ├── donottranslate.xml
+│       │       │   ├── integers.xml
+│       │       │   ├── strings.xml
+│       │       │   └── styles.xml
+│       │       ├── values-de/
+│       │       │   └── strings.xml
+│       │       ├── values-de-land/
+│       │       │   └── strings.xml
+│       │       ├── values-de-port/
+│       │       │   └── strings.xml
+│       │       ├── values-de-v28/
+│       │       │   └── strings.xml
+│       │       ├── values-es/
+│       │       │   └── strings.xml
+│       │       ├── values-es-land/
+│       │       │   └── strings.xml
+│       │       ├── values-es-port/
+│       │       │   └── strings.xml
+│       │       ├── values-es-v28/
+│       │       │   └── strings.xml
+│       │       ├── values-h360dp/
+│       │       │   └── dimens.xml
+│       │       ├── values-h480dp/
+│       │       │   └── dimens.xml
+│       │       ├── values-h600dp/
+│       │       │   └── dimens.xml
+│       │       ├── values-h720dp/
+│       │       │   └── dimens.xml
+│       │       ├── values-h900dp/
+│       │       │   └── dimens.xml
+│       │       ├── values-ja/
+│       │       │   └── strings.xml
+│       │       ├── values-ja-land/
+│       │       │   └── strings.xml
+│       │       ├── values-ja-port/
+│       │       │   └── strings.xml
+│       │       ├── values-ja-v28/
+│       │       │   └── strings.xml
+│       │       ├── values-land/
+│       │       │   └── strings.xml
+│       │       ├── values-nl/
+│       │       │   └── strings.xml
+│       │       ├── values-nl-land/
+│       │       │   └── strings.xml
+│       │       ├── values-nl-port/
+│       │       │   └── strings.xml
+│       │       ├── values-nl-v28/
+│       │       │   └── strings.xml
+│       │       ├── values-pl/
+│       │       │   └── strings.xml
+│       │       ├── values-pl-land/
+│       │       │   └── strings.xml
+│       │       ├── values-pl-port/
+│       │       │   └── strings.xml
+│       │       ├── values-pl-v28/
+│       │       │   └── strings.xml
+│       │       ├── values-port/
+│       │       │   └── strings.xml
+│       │       ├── values-ru/
+│       │       │   └── strings.xml
+│       │       ├── values-ru-land/
+│       │       │   └── strings.xml
+│       │       ├── values-ru-port/
+│       │       │   └── strings.xml
+│       │       ├── values-ru-v28/
+│       │       │   └── strings.xml
+│       │       ├── values-sw540dp/
+│       │       │   └── default_values.xml
+│       │       ├── values-sw600dp/
+│       │       │   ├── default_values.xml
+│       │       │   └── integers.xml
+│       │       ├── values-sw720dp/
+│       │       │   ├── default_values.xml
+│       │       │   └── integers.xml
+│       │       ├── values-tr/
+│       │       │   └── strings.xml
+│       │       ├── values-tr-land/
+│       │       │   └── strings.xml
+│       │       ├── values-tr-port/
+│       │       │   └── strings.xml
+│       │       ├── values-tr-v28/
+│       │       │   └── strings.xml
+│       │       ├── values-v27/
+│       │       │   └── styles.xml
+│       │       ├── values-v28/
+│       │       │   ├── donottranslate.xml
+│       │       │   └── strings.xml
+│       │       ├── values-w600dp/
+│       │       │   ├── dimens.xml
+│       │       │   └── styles.xml
+│       │       ├── values-w600dp-v24/
+│       │       │   ├── dimens.xml
+│       │       │   └── styles.xml
+│       │       ├── values-w720dp/
+│       │       │   └── dimens.xml
+│       │       ├── values-zh-rCN/
+│       │       │   └── strings.xml
+│       │       ├── values-zh-rCN-land/
+│       │       │   └── strings.xml
+│       │       ├── values-zh-rCN-port/
+│       │       │   └── strings.xml
+│       │       ├── values-zh-rCN-v28/
+│       │       │   └── strings.xml
+│       │       └── xml/
+│       │           ├── tb_pref_advanced.xml
+│       │           ├── tb_pref_appearance.xml
+│       │           ├── tb_pref_base.xml
+│       │           ├── tb_pref_context_menu.xml
+│       │           ├── tb_pref_context_menu_block.xml
+│       │           ├── tb_pref_context_menu_change_wallpaper.xml
+│       │           ├── tb_pref_context_menu_change_wallpaper_secondary.xml
+│       │           ├── tb_pref_context_menu_desktop_icons.xml
+│       │           ├── tb_pref_context_menu_header.xml
+│       │           ├── tb_pref_context_menu_open_settings.xml
+│       │           ├── tb_pref_context_menu_overflow.xml
+│       │           ├── tb_pref_context_menu_pin.xml
+│       │           ├── tb_pref_context_menu_quit.xml
+│       │           ├── tb_pref_context_menu_remove_desktop_icon.xml
+│       │           ├── tb_pref_context_menu_shortcut_list.xml
+│       │           ├── tb_pref_context_menu_shortcuts.xml
+│       │           ├── tb_pref_context_menu_show_window_sizes.xml
+│       │           ├── tb_pref_context_menu_window_size_list.xml
+│       │           ├── tb_pref_desktop_mode.xml
+│       │           ├── tb_pref_freeform_hack.xml
+│       │           ├── tb_pref_general.xml
+│       │           ├── tb_pref_manage_app_data.xml
+│       │           ├── tb_pref_navigation_bar_buttons.xml
+│       │           ├── tb_pref_recent_apps.xml
+│       │           └── tb_pref_remove_desktop_wallpaper.xml
+│       ├── nonlib/
+│       │   ├── java/
+│       │   │   └── com/
+│       │   │       └── farmerbb/
+│       │   │           └── taskbar/
+│       │   │               ├── activity/
+│       │   │               │   ├── PersistentShortcutLaunchActivity.java
+│       │   │               │   ├── PersistentShortcutSelectAppActivity.java
+│       │   │               │   └── dark/
+│       │   │               │       └── PersistentShortcutSelectAppActivityDark.java
+│       │   │               ├── provider/
+│       │   │               │   └── Kustom5SecsProvider.java
+│       │   │               ├── service/
+│       │   │               │   ├── FavoriteApp1.java
+│       │   │               │   ├── FavoriteApp2.java
+│       │   │               │   ├── FavoriteApp3.java
+│       │   │               │   ├── FavoriteApp4.java
+│       │   │               │   ├── FavoriteApp5.java
+│       │   │               │   └── FavoriteAppTileService.java
+│       │   │               └── util/
+│       │   │                   └── ShortcutUtils.java
+│       │   └── res/
+│       │       ├── drawable/
+│       │       │   ├── tb_apps.xml
+│       │       │   ├── tb_brush.xml
+│       │       │   ├── tb_error_outline.xml
+│       │       │   ├── tb_favorite_app_tile.xml
+│       │       │   ├── tb_settings.xml
+│       │       │   └── tb_web_asset.xml
+│       │       ├── layout/
+│       │       │   ├── tb_main.xml
+│       │       │   └── tb_shortcut_options.xml
+│       │       ├── mipmap-anydpi-v26/
+│       │       │   ├── tb_freeform_mode.xml
+│       │       │   └── tb_launcher.xml
+│       │       ├── values/
+│       │       │   └── donottranslate.xml
+│       │       └── xml/
+│       │           ├── tb_accessibility_service.xml
+│       │           └── tb_pref_about.xml
+│       ├── nonplaystore/
+│       │   └── java/
+│       │       └── com/
+│       │           └── farmerbb/
+│       │               └── taskbar/
+│       │                   ├── activity/
+│       │                   │   └── EnableAdditionalSettingsActivityBase.java
+│       │                   └── util/
+│       │                       └── DependencyUtils.java
+│       ├── playstore/
+│       │   ├── AndroidManifest.xml
+│       │   ├── java/
+│       │   │   └── com/
+│       │   │       └── farmerbb/
+│       │   │           └── taskbar/
+│       │   │               ├── activity/
+│       │   │               │   ├── EnableAdditionalSettingsActivityBase.java
+│       │   │               │   ├── IconPackApplyActivity.java
+│       │   │               │   ├── TaskerActionActivity.java
+│       │   │               │   ├── TaskerActivityBase.java
+│       │   │               │   └── TaskerConditionActivity.java
+│       │   │               ├── receiver/
+│       │   │               │   ├── DisableFreeformReceiver.java
+│       │   │               │   ├── DisableHomeReceiver.java
+│       │   │               │   ├── EnableFreeformReceiver.java
+│       │   │               │   ├── EnableHomeReceiver.java
+│       │   │               │   ├── ReceiveSettingsReceiver.java
+│       │   │               │   ├── SendSettingsReceiver.java
+│       │   │               │   ├── TaskerActionReceiver.java
+│       │   │               │   └── TaskerConditionReceiver.java
+│       │   │               └── util/
+│       │   │                   ├── BundleScrubber.java
+│       │   │                   ├── DependencyUtils.java
+│       │   │                   ├── PluginBundleManager.java
+│       │   │                   └── ToastCompatImpl.java
+│       │   └── res/
+│       │       ├── anim/
+│       │       │   ├── tb_enter_from_left.xml
+│       │       │   ├── tb_enter_from_right.xml
+│       │       │   ├── tb_exit_to_left.xml
+│       │       │   └── tb_exit_to_right.xml
+│       │       └── xml/
+│       │           ├── tb_disable_keyboard.xml
+│       │           ├── tb_file_paths.xml
+│       │           ├── tb_pref_tasker_action.xml
+│       │           └── tb_pref_tasker_condition.xml
+│       └── test/
+│           └── java/
+│               └── com/
+│                   └── farmerbb/
+│                       └── taskbar/
+│                           ├── Constants.kt
+│                           ├── LauncherAppsHelper.kt
+│                           ├── helper/
+│                           │   ├── DashboardHelperTest.kt
+│                           │   ├── FreeformHackHelperTest.kt
+│                           │   ├── GlobalHelperTest.kt
+│                           │   ├── LauncherHelperTest.kt
+│                           │   ├── MenuHelperTest.kt
+│                           │   └── ToastHelperTest.kt
+│                           ├── mockito/
+│                           │   ├── BooleanAnswer.kt
+│                           │   ├── IntAnswer.kt
+│                           │   └── StringAnswer.kt
+│                           ├── receiver/
+│                           │   ├── BootReceiverTest.kt
+│                           │   ├── PackageUpgradeReceiverTest.kt
+│                           │   ├── QuitReceiverTest.kt
+│                           │   └── ShowHideTaskbarReceiverTest.kt
+│                           ├── service/
+│                           │   ├── FavoriteAppTileServiceTest.kt
+│                           │   ├── NotificationCountServiceTest.kt
+│                           │   ├── PowerMenuServiceTest.kt
+│                           │   ├── QuickSettingsTileServiceTest.kt
+│                           │   └── UIHostServiceNewControllerTest.kt
+│                           ├── shadow/
+│                           │   └── TaskbarShadowScrollView.kt
+│                           ├── ui/
+│                           │   ├── DashboardControllerTest.kt
+│                           │   ├── MockUIHost.kt
+│                           │   ├── StartMenuControllerTest.kt
+│                           │   ├── TaskbarControllerTest.kt
+│                           │   ├── TestUIController.kt
+│                           │   ├── TestUIHostService.kt
+│                           │   ├── UIControllerTest.kt
+│                           │   ├── UIHostServiceTest.kt
+│                           │   └── ViewParamsTest.kt
+│                           ├── util/
+│                           │   ├── AppEntryTest.kt
+│                           │   ├── BlacklistTest.kt
+│                           │   ├── DesktopIconInfoTest.kt
+│                           │   ├── FABWrapperTest.kt
+│                           │   ├── IconPackManagerTest.kt
+│                           │   ├── PinnedBlockedAppsTest.kt
+│                           │   ├── RunnableHooker.kt
+│                           │   ├── SavedWindowSizeEntryTest.kt
+│                           │   ├── SavedWindowSizesTest.kt
+│                           │   ├── TaskbarPositionTest.kt
+│                           │   ├── ToastFrameworkImplTest.kt
+│                           │   ├── TopAppsTest.kt
+│                           │   └── UTest.kt
+│                           └── widget/
+│                               ├── DashboardCellTest.kt
+│                               └── StartMenuLayoutTest.kt
+├── build.gradle
+├── dependencies.gradle
+├── gradlew.bat
+└── settings.gradle
