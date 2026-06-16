@@ -250,21 +250,28 @@ public class TaskbarController extends UIController {
         WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         TaskbarPosition.setCachedRotation(windowManager.getDefaultDisplay().getRotation());
 
+        // Determine where to show the taskbar on screen
+        String taskbarPosition = TaskbarPosition.getTaskbarPosition(context);
+        int layoutId = getTaskbarLayoutId(taskbarPosition);
+        boolean isNewVerticalLayout = layoutId == R.layout.tb_taskbar_vertical;
+        positionIsVertical = TaskbarPosition.isVertical(taskbarPosition);
+
+        int flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
+        if(isNewVerticalLayout) {
+            flags |= WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
+        }
+
         this.params = new ViewParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 -1,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM,
+                flags,
                 getBottomMargin(context)
         );
 
         final ViewParams params = this.params;
 
-        // Determine where to show the taskbar on screen
-        String taskbarPosition = TaskbarPosition.getTaskbarPosition(context);
         params.gravity = getTaskbarGravity(taskbarPosition);
-        int layoutId = getTaskbarLayoutId(taskbarPosition);
-        positionIsVertical = TaskbarPosition.isVertical(taskbarPosition);
 
         if(positionIsVertical) {
             int offset = context.getResources().getDimensionPixelSize(R.dimen.tb_desktop_icon_fab_margin);
@@ -282,8 +289,6 @@ public class TaskbarController extends UIController {
         taskbar = layout.findViewById(R.id.taskbar);
         scrollView = layout.findViewById(R.id.taskbar_scrollview);
 
-        boolean isNewVerticalLayout = layout.findViewById(R.id.sidebar_handle) != null;
-
         if(isNewVerticalLayout) {
             params.gravity = Gravity.TOP | Gravity.RIGHT;
             params.x = 0;
@@ -292,6 +297,18 @@ public class TaskbarController extends UIController {
             View handle = layout.findViewById(R.id.sidebar_handle);
             final LinearLayout container = layout.findViewById(R.id.sidebar_container);
             int touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+
+            layout.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if(event.getAction() == MotionEvent.ACTION_OUTSIDE) {
+                        if(container != null && container.getVisibility() == View.VISIBLE) {
+                            setSidebarContainerVisible(false);
+                        }
+                    }
+                    return false;
+                }
+            });
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 handle.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
