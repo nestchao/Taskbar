@@ -54,6 +54,13 @@ public class NotificationService extends Service {
             startService(new Intent(this, TaskbarService.class));
             startService(new Intent(this, StartMenuService.class));
             startService(new Intent(this, DashboardService.class));
+        } else if(intent == null) {
+            SharedPreferences pref = U.getSharedPreferences(this);
+            if(!pref.getBoolean(PREF_IS_HIDDEN, false)) {
+                startService(new Intent(this, TaskbarService.class));
+                startService(new Intent(this, StartMenuService.class));
+                startService(new Intent(this, DashboardService.class));
+            }
         }
 
         return START_STICKY;
