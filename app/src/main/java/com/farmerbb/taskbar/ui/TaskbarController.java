@@ -303,7 +303,7 @@ public class TaskbarController extends UIController {
                 public boolean onTouch(View v, MotionEvent event) {
                     if(event.getAction() == MotionEvent.ACTION_OUTSIDE) {
                         if(container != null && container.getVisibility() == View.VISIBLE) {
-                            setSidebarContainerVisible(false);
+                            setSidebarContainerVisible(false, host);
                         }
                     }
                     return false;
@@ -372,16 +372,16 @@ public class TaskbarController extends UIController {
 
                                     if(Math.abs(deltaX) > SWIPE_THRESHOLD) {
                                         if(isLeftScreen) {
-                                            setSidebarContainerVisible(deltaX > 0);
+                                            setSidebarContainerVisible(deltaX > 0, host);
                                         } else {
-                                            setSidebarContainerVisible(deltaX < 0);
+                                            setSidebarContainerVisible(deltaX < 0, host);
                                         }
                                     }
                                 }
                             } else {
                                 if(!isDraggingVertical) {
                                     boolean isCurrentlyVisible = container.getVisibility() == View.VISIBLE;
-                                    setSidebarContainerVisible(!isCurrentlyVisible);
+                                    setSidebarContainerVisible(!isCurrentlyVisible, host);
                                 }
                             }
                             return true;
@@ -1711,14 +1711,31 @@ public class TaskbarController extends UIController {
         U.startContextMenuActivity(context, args);
     }
 
-    private void setSidebarContainerVisible(final boolean visible) {
+    private void setSidebarContainerVisible(final boolean visible, UIHost host) {
         final View container = layout != null ? layout.findViewById(R.id.sidebar_container) : null;
         if(container == null) return;
+
+        boolean isLeftScreen = (params.gravity & Gravity.LEFT) == Gravity.LEFT;
+
+        if(isLeftScreen) {
+            int containerWidthPx;
+            if(container.getWidth() > 0) {
+                containerWidthPx = container.getWidth();
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) container.getLayoutParams();
+                if(mlp != null)
+                    containerWidthPx += mlp.leftMargin + mlp.rightMargin;
+            } else {
+                float density = context.getResources().getDisplayMetrics().density;
+                containerWidthPx = (int) (72 * density + 0.5f);
+            }
+
+            params.x = visible ? -containerWidthPx : 0;
+            host.updateViewLayout(layout, params);
+        }
 
         if(visible) {
             container.animate().cancel();
 
-            boolean isLeftScreen = (params.gravity & Gravity.LEFT) == Gravity.LEFT;
             float pivotX = isLeftScreen ? 0f : (container.getWidth() > 0 ? container.getWidth() : container.getMeasuredWidth());
             container.setPivotX(pivotX);
 
@@ -1735,7 +1752,6 @@ public class TaskbarController extends UIController {
         } else {
             container.animate().cancel();
 
-            boolean isLeftScreen = (params.gravity & Gravity.LEFT) == Gravity.LEFT;
             float pivotX = isLeftScreen ? 0f : (container.getWidth() > 0 ? container.getWidth() : container.getMeasuredWidth());
             container.setPivotX(pivotX);
 
