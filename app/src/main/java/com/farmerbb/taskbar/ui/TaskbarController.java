@@ -290,9 +290,9 @@ public class TaskbarController extends UIController {
         scrollView = layout.findViewById(R.id.taskbar_scrollview);
 
         if(isNewVerticalLayout) {
-            params.gravity = Gravity.TOP | Gravity.RIGHT;
+            params.gravity = pref.getInt("sidebar_gravity", Gravity.TOP | Gravity.RIGHT);
             params.x = 0;
-            params.y = U.getDisplayInfo(context).height / 3;
+            params.y = pref.getInt("sidebar_position_y", U.getDisplayInfo(context).height / 3);
 
             View handle = layout.findViewById(R.id.sidebar_handle);
             final LinearLayout container = layout.findViewById(R.id.sidebar_container);
@@ -403,6 +403,13 @@ public class TaskbarController extends UIController {
                             params.gravity = Gravity.TOP | Gravity.RIGHT;
                         }
                     }
+
+                    SharedPreferences pref = U.getSharedPreferences(context);
+                    pref.edit()
+                            .putInt("sidebar_position_y", params.y)
+                            .putInt("sidebar_gravity", params.gravity)
+                            .apply();
+
                     host.updateViewLayout(layout, params);
                 }
             });

@@ -24521,13 +24521,13 @@ FILE: app\src\main\res\layout\tb_taskbar_vertical.xml
 
     <LinearLayout
         android:id="@+id/sidebar_container"
-        android:layout_width="48dp"
+        android:layout_width="60dp"
         android:layout_height="wrap_content"
         android:background="@drawable/tb_capsule_bg"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         android:layout_marginEnd="6dp"
         android:layout_marginStart="6dp"
         android:visibility="gone">
@@ -24722,11 +24722,11 @@ FILE: app\src\main\res\values\dimens.xml
 -->
 
 <resources>
-    <dimen name="tb_icon_size">60dp</dimen>
+    <dimen name="tb_icon_size">50dp</dimen>
     <dimen name="tb_start_menu_width">180dp</dimen>
     <dimen name="tb_start_menu_height">240dp</dimen>
     <dimen name="tb_start_menu_height_half">120dp</dimen>
-    <dimen name="tb_start_menu_grid_width">60dp</dimen>
+    <dimen name="tb_start_menu_grid_width">50dp</dimen>
     <dimen name="tb_start_menu_grid_text_size">11sp</dimen>
     <dimen name="tb_start_menu_grid_padding">1dp</dimen>
     <dimen name="tb_start_menu_icon_padding">12dp</dimen>
@@ -24739,7 +24739,7 @@ FILE: app\src\main\res\values\dimens.xml
     <dimen name="tb_max_width">@dimen/tb_match_parent</dimen>
     <dimen name="tb_app_drawer_icon_padding">4dp</dimen>
     <dimen name="tb_app_drawer_icon_padding_alt">7dp</dimen>
-    <dimen name="tb_base_size_start_plus_divider">65dp</dimen>
+    <dimen name="tb_base_size_start_plus_divider">55dp</dimen>
     <dimen name="tb_base_size_collapse_button">28dp</dimen>
     <dimen name="tb_dashboard_button_size">48dp</dimen>
     <dimen name="tb_divider_size">5dp</dimen>
