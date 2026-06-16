@@ -28,6 +28,8 @@ public class ViewParams {
     public int gravity;
     public int flags;
     public int bottomMargin;
+    public int x = -1;
+    public int y = -1;
 
     public ViewParams(int width, int height, int gravity, int flags, int bottomMargin) {
         this.width = width;
@@ -35,6 +37,11 @@ public class ViewParams {
         this.gravity = gravity;
         this.flags = flags;
         this.bottomMargin = bottomMargin;
+    }
+
+    public ViewParams(int width, int height, int gravity, int flags, int bottomMargin, int x) {
+        this(width, height, gravity, flags, bottomMargin);
+        this.x = x;
     }
 
     public WindowManager.LayoutParams toWindowManagerParams() {
@@ -49,8 +56,13 @@ public class ViewParams {
         if(gravity > -1)
             wmParams.gravity = gravity;
 
-        if(bottomMargin > -1)
+        if(y > -1)
+            wmParams.y = y;
+        else if(bottomMargin > -1)
             wmParams.y = bottomMargin;
+
+        if(x > -1)
+            wmParams.x = x;
 
         U.allowReflection();
         try {
@@ -70,14 +82,20 @@ public class ViewParams {
     }
 
     public ViewParams updateWidth(int width) {
-        return new ViewParams(width, height, gravity, flags, bottomMargin);
+        ViewParams p = new ViewParams(width, height, gravity, flags, bottomMargin, x);
+        p.y = y;
+        return p;
     }
 
     public ViewParams updateHeight(int height) {
-        return new ViewParams(width, height, gravity, flags, bottomMargin);
+        ViewParams p = new ViewParams(width, height, gravity, flags, bottomMargin, x);
+        p.y = y;
+        return p;
     }
 
     public ViewParams updateBottomMargin(int bottomMargin) {
-        return new ViewParams(width, height, gravity, flags, bottomMargin);
+        ViewParams p = new ViewParams(width, height, gravity, flags, bottomMargin, x);
+        p.y = y;
+        return p;
     }
 }

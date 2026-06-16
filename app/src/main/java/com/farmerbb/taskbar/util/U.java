@@ -47,6 +47,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -829,6 +832,44 @@ public class U {
         for(AppEntry entry : blockedAppsList) {
             pba.addBlockedApp(context, entry);
         }
+    }
+
+    public static BitmapDrawable getCircularBitmapDrawable(Context context, Drawable drawable) {
+        if (drawable == null) return null;
+
+        Bitmap src;
+        if (drawable instanceof BitmapDrawable) {
+            src = ((BitmapDrawable) drawable).getBitmap();
+        } else {
+            int width = drawable.getIntrinsicWidth();
+            int height = drawable.getIntrinsicHeight();
+            if (width <= 0 || height <= 0)
+                width = height = context.getResources().getDimensionPixelSize(R.dimen.tb_icon_size);
+
+            src = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(src);
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+        }
+
+        int size = Math.min(src.getWidth(), src.getHeight());
+        Bitmap output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setFilterBitmap(true);
+        paint.setDither(true);
+
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(0xFFFFFFFF);
+        canvas.drawCircle(size / 2f, size / 2f, size / 2f, paint);
+
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        Rect rect = new Rect(0, 0, size, size);
+        canvas.drawBitmap(src, null, rect, paint);
+
+        return new BitmapDrawable(context.getResources(), output);
     }
 
     public static boolean canEnableFreeform(Context context) {

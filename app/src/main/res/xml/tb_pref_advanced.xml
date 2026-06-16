@@ -69,6 +69,12 @@
         android:title="@string/tb_override_freeform_unsupported"
         android:summary="@string/tb_override_freeform_unsupported_description"/>
 
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="sidebar_swipe_trigger"
+        android:title="@string/tb_pref_title_sidebar_swipe_trigger"
+        android:summary="@string/tb_pref_description_sidebar_swipe_trigger" />
+
     <PreferenceCategory android:key="dummy" android:title="\n\n" />
 
 </PreferenceScreen>

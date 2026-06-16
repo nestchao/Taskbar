@@ -483,18 +483,18 @@
     <string name="tb_see_whats_new">查看本次发布有什么新内容</string>
     <string name="tb_action_view">查看</string>
 
-    <string name="tb_error_creating_widget">Error creating widget</string>
+    <string name="tb_error_creating_widget">创建小部件时出错</string>
 
-    <string name="tb_desktop_mode_ime_fix">Desktop mode input method fix</string>
-    <string name="tb_desktop_mode_ime_fix_title">Enable input method fix</string>
-    <string name="tb_desktop_mode_ime_fix_summary">Fixes visual glitches caused by input methods on Android 11+. Requires you to temporarily set Taskbar as your input method each time desktop mode starts.</string>
-    <string name="tb_desktop_mode_ime_fix_toast">Open desktop mode settings to enable a fix for visual glitches caused by input methods</string>
-    <string name="tb_desktop_mode_ime_fix_toast_alt">Start desktop mode first before enabling the input method fix</string>
+    <string name="tb_desktop_mode_ime_fix">桌面模式输入法修复</string>
+    <string name="tb_desktop_mode_ime_fix_title">启用输入法修复</string>
+    <string name="tb_desktop_mode_ime_fix_summary">修复 Android 11+ 上输入法引起的视觉问题。每次桌面模式启动时需要临时将 Taskbar 设为输入法。</string>
+    <string name="tb_desktop_mode_ime_fix_toast">打开桌面模式设置以启用输入法视觉问题修复</string>
+    <string name="tb_desktop_mode_ime_fix_toast_alt">请先启动桌面模式再启用输入法修复</string>
 
     <string name="tb_rom">ROM</string>
 
-    <string name="tb_override_freeform_unsupported">Force-enable freeform mode settings</string>
-    <string name="tb_override_freeform_unsupported_description">This version of Android does not support freeform mode on displays that do not set their default windowing mode to freeform (such as the built-in device display).\n\nIf you believe this is in error, toggle this setting on to force-enable the \'Freeform mode\" settings page.</string>
+    <string name="tb_override_freeform_unsupported">强制启用自由窗口模式设置</string>
+    <string name="tb_override_freeform_unsupported_description">此 Android 版本不支持在未将默认窗口模式设为自由窗口的显示器（如设备内置屏幕）上使用自由窗口模式。\n\n如果您认为此判断有误，请开启此设置以强制启用\"自由窗口模式\"设置页面。</string>
 
-    <string name="tb_shizuku_successful">Successfully enabled additional settings via Shizuku</string>
+    <string name="tb_shizuku_successful">已通过 Shizuku 成功启用额外设置</string>
 </resources>

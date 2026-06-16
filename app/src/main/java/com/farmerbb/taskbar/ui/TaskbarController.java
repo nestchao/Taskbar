@@ -16,6 +16,8 @@
 package com.farmerbb.taskbar.ui;
 
 import android.accessibilityservice.AccessibilityService;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
@@ -39,6 +41,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -68,6 +71,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.PointerIcon;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -157,6 +161,7 @@ public class TaskbarController extends UIController {
     private int numOfSysTrayIcons = 0;
 
     private boolean matchParent;
+    private ViewParams params;
     private Runnable updateParamsRunnable;
 
     private final Map<Integer, Boolean> sysTrayIconStates = new HashMap<>();
@@ -195,7 +200,7 @@ public class TaskbarController extends UIController {
     private final BroadcastReceiver startMenuAppearReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(startButton.getVisibility() == View.GONE
+            if(startButton != null && startButton.getVisibility() == View.GONE
                     && (!LauncherHelper.getInstance().isOnHomeScreen(context) || FreeformHackHelper.getInstance().isInFreeformWorkspace()))
                 layout.setVisibility(View.GONE);
         }
@@ -204,7 +209,7 @@ public class TaskbarController extends UIController {
     private final BroadcastReceiver startMenuDisappearReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(startButton.getVisibility() == View.GONE)
+            if(startButton != null && startButton.getVisibility() == View.GONE)
                 layout.setVisibility(View.VISIBLE);
         }
     };
@@ -244,7 +249,7 @@ public class TaskbarController extends UIController {
         WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         TaskbarPosition.setCachedRotation(windowManager.getDefaultDisplay().getRotation());
 
-        final ViewParams params = new ViewParams(
+        this.params = new ViewParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 -1,
@@ -252,11 +257,21 @@ public class TaskbarController extends UIController {
                 getBottomMargin(context)
         );
 
+        final ViewParams params = this.params;
+
         // Determine where to show the taskbar on screen
         String taskbarPosition = TaskbarPosition.getTaskbarPosition(context);
         params.gravity = getTaskbarGravity(taskbarPosition);
         int layoutId = getTaskbarLayoutId(taskbarPosition);
         positionIsVertical = TaskbarPosition.isVertical(taskbarPosition);
+
+        if(positionIsVertical) {
+            int offset = context.getResources().getDimensionPixelSize(R.dimen.tb_desktop_icon_fab_margin);
+            if(TaskbarPosition.isRight(context))
+                params.x = -offset;
+            else
+                params.x = offset;
+        }
 
         // Initialize views
         SharedPreferences pref = U.getSharedPreferences(context);
@@ -266,21 +281,122 @@ public class TaskbarController extends UIController {
         taskbar = layout.findViewById(R.id.taskbar);
         scrollView = layout.findViewById(R.id.taskbar_scrollview);
 
+        boolean isNewVerticalLayout = layout.findViewById(R.id.sidebar_handle) != null;
+
+        if(isNewVerticalLayout) {
+            params.gravity = Gravity.TOP | Gravity.RIGHT;
+            params.x = 0;
+            params.y = U.getDisplayInfo(context).height / 3;
+
+            View handle = layout.findViewById(R.id.sidebar_handle);
+            final LinearLayout container = layout.findViewById(R.id.sidebar_container);
+            int touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+
+            handle.setOnTouchListener(new View.OnTouchListener() {
+                private float initialTouchY;
+                private float initialTouchX;
+                private int initialY;
+                private boolean isDraggingVertical;
+                private boolean isSwipingHorizontal;
+                private final int SWIPE_THRESHOLD = 80;
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    SharedPreferences pref = U.getSharedPreferences(context);
+                    boolean swipeToTrigger = pref.getBoolean(PREF_SIDEBAR_SWIPE_TRIGGER, false);
+
+                    switch(event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            initialY = params.y;
+                            initialTouchY = event.getRawY();
+                            initialTouchX = event.getRawX();
+                            isDraggingVertical = false;
+                            isSwipingHorizontal = false;
+                            return true;
+
+                        case MotionEvent.ACTION_MOVE: {
+                            float deltaY = event.getRawY() - initialTouchY;
+                            float deltaX = event.getRawX() - initialTouchX;
+
+                            if(swipeToTrigger) {
+                                if(Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > touchSlop) {
+                                    isSwipingHorizontal = true;
+                                } else if(Math.abs(deltaY) > touchSlop && !isSwipingHorizontal) {
+                                    isDraggingVertical = true;
+                                    updatePosition(v, deltaY);
+                                }
+                            } else {
+                                if(Math.abs(deltaY) > touchSlop || Math.abs(deltaX) > touchSlop) {
+                                    isDraggingVertical = true;
+                                    updatePosition(v, deltaY);
+                                }
+                            }
+                            return true;
+                        }
+
+                        case MotionEvent.ACTION_UP: {
+                            if(swipeToTrigger) {
+                                if(isSwipingHorizontal) {
+                                    float deltaX = event.getRawX() - initialTouchX;
+                                    boolean isLeftScreen = (params.gravity & Gravity.LEFT) == Gravity.LEFT;
+
+                                    if(Math.abs(deltaX) > SWIPE_THRESHOLD) {
+                                        if(isLeftScreen) {
+                                            setSidebarContainerVisible(deltaX > 0);
+                                        } else {
+                                            setSidebarContainerVisible(deltaX < 0);
+                                        }
+                                    }
+                                }
+                            } else {
+                                if(!isDraggingVertical) {
+                                    boolean isCurrentlyVisible = container.getVisibility() == View.VISIBLE;
+                                    setSidebarContainerVisible(!isCurrentlyVisible);
+                                }
+                            }
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                private void updatePosition(View v, float deltaY) {
+                    int newY = initialY + (int) deltaY;
+                    int screenHeight = U.getDisplayInfo(context).height;
+                    params.y = Math.max(0, Math.min(newY, screenHeight - v.getHeight()));
+
+                    int screenWidth = U.getDisplayInfo(context).width;
+                    if(v.getRootView() != null) {
+                        if(initialTouchX < screenWidth / 2f) {
+                            params.gravity = Gravity.TOP | Gravity.LEFT;
+                        } else {
+                            params.gravity = Gravity.TOP | Gravity.RIGHT;
+                        }
+                    }
+                    host.updateViewLayout(layout, params);
+                }
+            });
+        }
+
         int backgroundTint = U.getBackgroundTint(context);
         int accentColor = U.getAccentColor(context);
 
-        if(altButtonConfig) {
-            space = layout.findViewById(R.id.space_alt);
-            layout.findViewById(R.id.space).setVisibility(View.GONE);
-        } else {
-            space = layout.findViewById(R.id.space);
-            layout.findViewById(R.id.space_alt).setVisibility(View.GONE);
+        if(!isNewVerticalLayout) {
+            if(altButtonConfig) {
+                space = layout.findViewById(R.id.space_alt);
+                layout.findViewById(R.id.space).setVisibility(View.GONE);
+            } else {
+                space = layout.findViewById(R.id.space);
+                layout.findViewById(R.id.space_alt).setVisibility(View.GONE);
+            }
+
+            if(space != null)
+                space.setOnClickListener(v -> toggleTaskbar(true));
+
+            startButton = layout.findViewById(R.id.start_button);
+            if(startButton != null)
+                drawStartButton(context, startButton, pref);
         }
-
-        space.setOnClickListener(v -> toggleTaskbar(true));
-
-        startButton = layout.findViewById(R.id.start_button);
-        drawStartButton(context, startButton, pref);
 
         refreshInterval = (int) (Float.parseFloat(pref.getString(PREF_REFRESH_FREQUENCY, "1")) * 1000);
         if(refreshInterval == 0)
@@ -295,49 +411,65 @@ public class TaskbarController extends UIController {
         U.sendBroadcast(context, ACTION_HIDE_START_MENU);
         U.sendBroadcast(context, ACTION_UPDATE_HOME_SCREEN_MARGINS);
 
-        if(altButtonConfig) {
-            button = layout.findViewById(R.id.hide_taskbar_button_alt);
-            layout.findViewById(R.id.hide_taskbar_button).setVisibility(View.GONE);
-        } else {
-            button = layout.findViewById(R.id.hide_taskbar_button);
-            layout.findViewById(R.id.hide_taskbar_button_alt).setVisibility(View.GONE);
+        if(!isNewVerticalLayout) {
+            if(altButtonConfig) {
+                button = layout.findViewById(R.id.hide_taskbar_button_alt);
+                layout.findViewById(R.id.hide_taskbar_button).setVisibility(View.GONE);
+            } else {
+                button = layout.findViewById(R.id.hide_taskbar_button);
+                layout.findViewById(R.id.hide_taskbar_button_alt).setVisibility(View.GONE);
+            }
+
+            try {
+                button.setTypeface(Typeface.createFromFile("/system/fonts/Roboto-Regular.ttf"));
+            } catch (RuntimeException ignored) {}
+
+            updateButton(false);
+            button.setOnClickListener(v -> toggleTaskbar(true));
+
+            SwipeGestureListener gestureListener = new SwipeGestureListener(TaskbarPosition.isRight(context));
+            button.setOnTouchListener(gestureListener);
+            View triggerLine = layout.findViewById(R.id.swipe_trigger_line);
+            if(triggerLine != null) triggerLine.setOnTouchListener(gestureListener);
+            LinearLayout buttonLayout = layout.findViewById(altButtonConfig
+                    ? R.id.hide_taskbar_button_layout_alt
+                    : R.id.hide_taskbar_button_layout);
+            if(buttonLayout != null) buttonLayout.setOnClickListener(v -> toggleTaskbar(true));
+
+            LinearLayout buttonLayoutToHide = layout.findViewById(altButtonConfig
+                    ? R.id.hide_taskbar_button_layout
+                    : R.id.hide_taskbar_button_layout_alt);
+            if(buttonLayoutToHide != null) buttonLayoutToHide.setVisibility(View.GONE);
+
+            dashboardButton = layout.findViewById(R.id.dashboard_button);
+            navbarButtons = layout.findViewById(R.id.navbar_buttons);
+            dashboardEnabled = drawDashboardButton(context, layout, dashboardButton, accentColor);
+            navbarButtonsEnabled = drawNavbarButtons(context, layout, pref, accentColor);
+            if(!navbarButtonsEnabled)
+                navbarButtons.setVisibility(View.GONE);
+
+            sysTrayEnabled = U.isSystemTrayEnabled(context);
+
+            if(sysTrayEnabled) {
+                drawSysTray(context, layoutId, layout);
+            }
+
+            if(positionIsVertical) {
+                GradientDrawable gd = new GradientDrawable();
+                gd.setColor(backgroundTint);
+                gd.setCornerRadius(context.getResources().getDimensionPixelSize(R.dimen.tb_icon_size) / 2);
+                layout.setBackground(gd);
+            } else {
+                layout.setBackgroundColor(backgroundTint);
+            }
+
+            View divider = layout.findViewById(R.id.divider);
+            if(divider != null)
+                divider.setBackgroundColor(
+                        pref.getBoolean(PREF_CENTERED_ICONS, false) ? 0 : accentColor
+                );
+            if(button != null) button.setTextColor(accentColor);
         }
-
-        try {
-            button.setTypeface(Typeface.createFromFile("/system/fonts/Roboto-Regular.ttf"));
-        } catch (RuntimeException ignored) {}
-
-        updateButton(false);
-        button.setOnClickListener(v -> toggleTaskbar(true));
-
-        LinearLayout buttonLayout = layout.findViewById(altButtonConfig
-                ? R.id.hide_taskbar_button_layout_alt
-                : R.id.hide_taskbar_button_layout);
-        if(buttonLayout != null) buttonLayout.setOnClickListener(v -> toggleTaskbar(true));
-
-        LinearLayout buttonLayoutToHide = layout.findViewById(altButtonConfig
-                ? R.id.hide_taskbar_button_layout
-                : R.id.hide_taskbar_button_layout_alt);
-        if(buttonLayoutToHide != null) buttonLayoutToHide.setVisibility(View.GONE);
-
-        dashboardButton = layout.findViewById(R.id.dashboard_button);
-        navbarButtons = layout.findViewById(R.id.navbar_buttons);
-        dashboardEnabled = drawDashboardButton(context, layout, dashboardButton, accentColor);
-        navbarButtonsEnabled = drawNavbarButtons(context, layout, pref, accentColor);
-        if(!navbarButtonsEnabled)
-            navbarButtons.setVisibility(View.GONE);
-
-        sysTrayEnabled = U.isSystemTrayEnabled(context);
-
-        if(sysTrayEnabled) {
-            drawSysTray(context, layoutId, layout);
-        }
-
-        layout.setBackgroundColor(backgroundTint);
-        layout.findViewById(R.id.divider).setBackgroundColor(
-                pref.getBoolean(PREF_CENTERED_ICONS, false) ? 0 : accentColor
-        );
-        button.setTextColor(accentColor);
 
         applyMarginFix(host, layout, params);
 
@@ -1330,10 +1462,12 @@ public class TaskbarController extends UIController {
             }
         }
 
-        if(startButton.getVisibility() == View.GONE)
-            showTaskbar(true);
-        else
-            hideTaskbar(true);
+        if(startButton != null) {
+            if(startButton.getVisibility() == View.GONE)
+                showTaskbar(true);
+            else
+                hideTaskbar(true);
+        }
     }
 
     private void showTaskbar(boolean clearVariables) {
@@ -1342,20 +1476,20 @@ public class TaskbarController extends UIController {
             taskbarHiddenTemporarily = false;
         }
 
-        if(startButton.getVisibility() == View.GONE) {
+        if(startButton != null && startButton.getVisibility() == View.GONE) {
             startButton.setVisibility(View.VISIBLE);
-            space.setVisibility(View.VISIBLE);
+            if(space != null) space.setVisibility(View.VISIBLE);
 
-            if(dashboardEnabled)
+            if(dashboardEnabled && dashboardButton != null)
                 dashboardButton.setVisibility(View.VISIBLE);
 
-            if(navbarButtonsEnabled)
+            if(navbarButtonsEnabled && navbarButtons != null)
                 navbarButtons.setVisibility(View.VISIBLE);
 
             if(isShowingRecents && scrollView.getVisibility() == View.GONE)
                 scrollView.setVisibility(View.INVISIBLE);
 
-            if(sysTrayEnabled)
+            if(sysTrayEnabled && sysTrayParentLayout != null)
                 sysTrayParentLayout.setVisibility(View.VISIBLE);
 
             shouldRefreshRecents = true;
@@ -1376,20 +1510,20 @@ public class TaskbarController extends UIController {
             taskbarHiddenTemporarily = false;
         }
 
-        if(startButton.getVisibility() == View.VISIBLE) {
+        if(startButton != null && startButton.getVisibility() == View.VISIBLE) {
             startButton.setVisibility(View.GONE);
-            space.setVisibility(View.GONE);
+            if(space != null) space.setVisibility(View.GONE);
 
-            if(dashboardEnabled)
+            if(dashboardEnabled && dashboardButton != null)
                 dashboardButton.setVisibility(View.GONE);
 
-            if(navbarButtonsEnabled)
+            if(navbarButtonsEnabled && navbarButtons != null)
                 navbarButtons.setVisibility(View.GONE);
 
             if(isShowingRecents)
                 scrollView.setVisibility(View.GONE);
 
-            if(sysTrayEnabled)
+            if(sysTrayEnabled && sysTrayParentLayout != null)
                 sysTrayParentLayout.setVisibility(View.GONE);
 
             shouldRefreshRecents = false;
@@ -1540,11 +1674,64 @@ public class TaskbarController extends UIController {
         U.startContextMenuActivity(context, args);
     }
 
+    private void setSidebarContainerVisible(final boolean visible) {
+        final View container = layout != null ? layout.findViewById(R.id.sidebar_container) : null;
+        if(container == null) return;
+
+        if(visible) {
+            container.animate().cancel();
+
+            boolean isLeftScreen = (params.gravity & Gravity.LEFT) == Gravity.LEFT;
+            float pivotX = isLeftScreen ? 0f : (container.getWidth() > 0 ? container.getWidth() : container.getMeasuredWidth());
+            container.setPivotX(pivotX);
+
+            container.setAlpha(0f);
+            container.setScaleX(0f);
+            container.setVisibility(View.VISIBLE);
+
+            container.animate()
+                    .alpha(1f)
+                    .scaleX(1f)
+                    .setDuration(250)
+                    .setListener(null)
+                    .start();
+        } else {
+            container.animate().cancel();
+
+            boolean isLeftScreen = (params.gravity & Gravity.LEFT) == Gravity.LEFT;
+            float pivotX = isLeftScreen ? 0f : (container.getWidth() > 0 ? container.getWidth() : container.getMeasuredWidth());
+            container.setPivotX(pivotX);
+
+            container.animate()
+                    .alpha(0f)
+                    .scaleX(0f)
+                    .setDuration(250)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            container.setVisibility(View.GONE);
+                        }
+                    })
+                    .start();
+        }
+    }
+
     private void updateButton(boolean isCollapsed) {
         SharedPreferences pref = U.getSharedPreferences(context);
         boolean hide = pref.getBoolean(PREF_INVISIBLE_BUTTON, false);
 
-        if(button != null) button.setText(context.getString(isCollapsed ? R.string.tb_right_arrow : R.string.tb_left_arrow));
+        if(positionIsVertical) {
+            View triggerLine = layout.findViewById(R.id.swipe_trigger_line);
+            if(triggerLine != null) triggerLine.setVisibility(isCollapsed ? View.VISIBLE : View.GONE);
+            if(button != null) {
+                button.setVisibility(isCollapsed ? View.GONE : View.VISIBLE);
+                button.setText(isCollapsed ? "" : context.getString(R.string.tb_left_arrow));
+            }
+        } else {
+            if(button != null)
+                button.setText(context.getString(isCollapsed ? R.string.tb_right_arrow : R.string.tb_left_arrow));
+        }
+
         if(layout != null) layout.setAlpha(isCollapsed && hide ? 0 : 1);
     }
 
@@ -1577,19 +1764,12 @@ public class TaskbarController extends UIController {
 
         ImageView imageView = convertView.findViewById(R.id.icon);
         ImageView imageView2 = convertView.findViewById(R.id.shortcut_icon);
-        imageView.setImageDrawable(entry.getIcon(context));
-        imageView2.setBackgroundColor(U.getAccentColor(context));
+
+        Drawable circularIcon = U.getCircularBitmapDrawable(context, entry.getIcon(context));
+        imageView.setImageDrawable(circularIcon != null ? circularIcon : entry.getIcon(context));
+        imageView2.setVisibility(View.GONE);
 
         String taskbarPosition = TaskbarPosition.getTaskbarPosition(context);
-        if(pref.getBoolean(PREF_SHORTCUT_ICON, true)) {
-            boolean shouldShowShortcutIcon;
-            if(taskbarPosition.contains("vertical"))
-                shouldShowShortcutIcon = position >= list.size() - numOfPinnedApps;
-            else
-                shouldShowShortcutIcon = position < numOfPinnedApps;
-
-            if(shouldShowShortcutIcon) imageView2.setVisibility(View.VISIBLE);
-        }
 
         if(POSITION_BOTTOM_RIGHT.equals(taskbarPosition) || POSITION_TOP_RIGHT.equals(taskbarPosition)) {
             imageView.setRotationY(180);
@@ -1891,5 +2071,52 @@ public class TaskbarController extends UIController {
     private int getResourceIdFor(String name) {
         String packageName = context.getResources().getResourcePackageName(R.drawable.tb_dummy);
         return context.getResources().getIdentifier(name, "drawable", packageName);
+    }
+
+    private class SwipeGestureListener implements View.OnTouchListener {
+        private final boolean isRightSide;
+        private float downX;
+
+        SwipeGestureListener(boolean isRightSide) {
+            this.isRightSide = isRightSide;
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            switch(event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    downX = event.getRawX();
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+                    return true;
+
+                case MotionEvent.ACTION_UP: {
+                    float deltaX = event.getRawX() - downX;
+                    int slop = ViewConfiguration.get(v.getContext()).getScaledTouchSlop();
+
+                    if(Math.abs(deltaX) > slop * 2) {
+                        if(isRightSide) {
+                            if(deltaX < 0)
+                                showTaskbar(true);
+                            else
+                                hideTaskbar(true);
+                        } else {
+                            if(deltaX > 0)
+                                showTaskbar(true);
+                            else
+                                hideTaskbar(true);
+                        }
+                        return true;
+                    }
+
+                    toggleTaskbar(true);
+                    return true;
+                }
+
+                case MotionEvent.ACTION_CANCEL:
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
+                    return true;
+            }
+            return true;
+        }
     }
 }
