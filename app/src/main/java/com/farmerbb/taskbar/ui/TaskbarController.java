@@ -106,6 +106,8 @@ import com.farmerbb.taskbar.helper.FreeformHackHelper;
 import com.farmerbb.taskbar.util.IconCache;
 import com.farmerbb.taskbar.helper.LauncherHelper;
 import com.farmerbb.taskbar.util.PinnedBlockedApps;
+import com.farmerbb.taskbar.util.SidebarApps;
+import com.farmerbb.taskbar.util.BlacklistEntry;
 import com.farmerbb.taskbar.helper.MenuHelper;
 import com.farmerbb.taskbar.util.U;
 
@@ -968,6 +970,131 @@ public class TaskbarController extends UIController {
         List<LauncherActivityInfo> launcherAppCache = new ArrayList<>();
         int maxNumOfEntries = firstRefresh ? 0 : U.getMaxNumOfEntries(context);
         boolean fullLength = pref.getBoolean(PREF_FULL_LENGTH, true);
+
+        // Sidebar manual app selection mode
+        if(TaskbarPosition.isVertical(context) && pref.getBoolean(PREF_SIDEBAR_MANUAL_MODE, false)) {
+            SidebarApps sidebarApps = SidebarApps.getInstance(context);
+            List<BlacklistEntry> chosen = sidebarApps.getSidebarApps();
+            PinnedBlockedApps pba = PinnedBlockedApps.getInstance(context);
+            List<AppEntry> blockedApps = pba.getBlockedApps();
+            List<String> blockedPkgs = new ArrayList<>();
+            if(blockedApps.size() > 0) {
+                synchronized(blockedApps) {
+                    for(AppEntry entry : blockedApps) {
+                        blockedPkgs.add(entry.getPackageName());
+                    }
+                }
+            }
+
+            UserManager userManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
+            LauncherApps launcherApps = (LauncherApps) context.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+            final List<UserHandle> userHandles = userManager.getUserProfiles();
+
+            for(BlacklistEntry blEntry : chosen) {
+                String componentName = blEntry.getPackageName();
+                String packageName = componentName.contains(":") ? componentName.split(":")[0] : componentName;
+                String packageNameAlt = packageName.contains("/") ? packageName.split("/")[0] : packageName;
+
+                if(blockedPkgs.contains(packageName) || blockedPkgs.contains(packageNameAlt))
+                    continue;
+
+                for(UserHandle handle : userHandles) {
+                    List<LauncherActivityInfo> list = launcherApps.getActivityList(packageNameAlt, handle);
+                    if(!list.isEmpty()) {
+                        launcherAppCache.add(list.get(0));
+                        AppEntry newEntry = new AppEntry(packageNameAlt, null, null, null, false);
+                        newEntry.setUserId(userManager.getSerialNumberForUser(handle));
+                        entries.add(newEntry);
+                        break;
+                    }
+                }
+            }
+
+            maxNumOfEntries = entries.size();
+
+            if(entries.size() > 0 || fullLength) {
+                while(entries.size() > maxNumOfEntries) {
+                    try {
+                        entries.remove(entries.size() - 1);
+                        launcherAppCache.remove(launcherAppCache.size() - 1);
+                    } catch (IndexOutOfBoundsException ignored) {}
+                }
+
+                if(TaskbarPosition.isVertical(context)) {
+                    Collections.reverse(entries);
+                    Collections.reverse(launcherAppCache);
+                }
+
+                boolean shouldRedrawTaskbar = firstRefresh;
+
+                List<String> finalApplicationIds = new ArrayList<>();
+                for(AppEntry entry : entries) {
+                    finalApplicationIds.add(entry.getPackageName());
+                }
+
+                int realNumOfSysTrayIcons = 0;
+                for(Integer key : sysTrayIconStates.keySet()) {
+                    if(sysTrayIconStates.get(key))
+                        realNumOfSysTrayIcons++;
+                }
+
+                if(finalApplicationIds.size() != currentTaskbarIds.size()
+                        || 0 != numOfPinnedApps
+                        || numOfSysTrayIcons != realNumOfSysTrayIcons)
+                    shouldRedrawTaskbar = true;
+                else {
+                    for(int i = 0; i < finalApplicationIds.size(); i++) {
+                        if(!finalApplicationIds.get(i).equals(currentTaskbarIds.get(i))) {
+                            shouldRedrawTaskbar = true;
+                            break;
+                        }
+                    }
+                }
+
+                if(shouldRedrawTaskbar) {
+                    currentTaskbarIds = finalApplicationIds;
+                    numOfPinnedApps = 0;
+                    numOfSysTrayIcons = realNumOfSysTrayIcons;
+
+                    populateAppEntries(context, pm, entries, launcherAppCache);
+
+                    final int numOfEntries = Math.min(entries.size(), maxNumOfEntries);
+
+                    handler.post(() -> {
+                        if(numOfEntries > 0 || fullLength) {
+                            ViewGroup.LayoutParams params = scrollView.getLayoutParams();
+                            calculateScrollViewParams(context, pref, params, fullLength, numOfEntries);
+                            scrollView.setLayoutParams(params);
+
+                            for(Integer key : sysTrayIconStates.keySet()) {
+                                sysTrayLayout.findViewById(key).setVisibility(
+                                        sysTrayIconStates.get(key) ? View.VISIBLE : View.GONE
+                                );
+                            }
+
+                            taskbar.removeAllViews();
+                            for(int i = 0; i < entries.size(); i++) {
+                                taskbar.addView(getView(entries, i));
+                            }
+
+                            isShowingRecents = true;
+                            if(shouldRefreshRecents && scrollView.getVisibility() != View.VISIBLE) {
+                                if(firstRefresh)
+                                    scrollView.setVisibility(View.INVISIBLE);
+                                else
+                                    scrollView.setVisibility(View.VISIBLE);
+                            }
+                        } else {
+                            taskbar.removeAllViews();
+                            isShowingRecents = false;
+                            scrollView.setVisibility(View.GONE);
+                        }
+                    });
+                }
+            }
+
+            return;
+        }
 
         PinnedBlockedApps pba = PinnedBlockedApps.getInstance(context);
         List<AppEntry> pinnedApps = pba.getPinnedApps();

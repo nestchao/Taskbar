@@ -76,6 +76,7 @@ public class Constants {
 
     public static final String PREF_ABOUT = "about";
     public static final String PREF_SIDEBAR_SWIPE_TRIGGER = "sidebar_swipe_trigger";
+    public static final String PREF_SIDEBAR_MANUAL_MODE = "sidebar_manual_mode";
     public static final String PREF_ACCENT_COLOR = "accent_color";
     public static final String PREF_ACCENT_COLOR_PREF = "accent_color_pref";
     public static final String PREF_ADDITIONAL_SETTINGS = "additional_settings";

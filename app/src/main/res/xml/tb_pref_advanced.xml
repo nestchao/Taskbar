@@ -75,6 +75,17 @@
         android:title="@string/tb_pref_title_sidebar_swipe_trigger"
         android:summary="@string/tb_pref_description_sidebar_swipe_trigger" />
 
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="sidebar_manual_mode"
+        android:title="@string/tb_pref_title_sidebar_manual_mode"
+        android:summary="@string/tb_pref_description_sidebar_manual_mode" />
+
+    <Preference
+        android:key="sidebar_choose_apps"
+        android:dependency="sidebar_manual_mode"
+        android:title="@string/tb_choose_sidebar_apps" />
+
     <PreferenceCategory android:key="dummy" android:title="\n\n" />
 
 </PreferenceScreen>

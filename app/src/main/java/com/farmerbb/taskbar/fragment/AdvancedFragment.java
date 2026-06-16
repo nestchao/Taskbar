@@ -44,6 +44,7 @@ import com.farmerbb.taskbar.activity.KeyboardShortcutActivityLockDevice;
 import com.farmerbb.taskbar.activity.NavigationBarButtonsActivity;
 import com.farmerbb.taskbar.activity.HomeActivity;
 import com.farmerbb.taskbar.activity.KeyboardShortcutActivity;
+import com.farmerbb.taskbar.activity.SelectSidebarAppsActivity;
 import com.farmerbb.taskbar.util.DependencyUtils;
 import com.farmerbb.taskbar.util.U;
 
@@ -125,6 +126,8 @@ public class AdvancedFragment extends SettingsFragment {
             bindPreferenceSummaryToValue(findPreference(PREF_OVERRIDE_FREEFORM_UNSUPPORTED));
         } else
             getPreferenceScreen().removePreference(findPreference(PREF_OVERRIDE_FREEFORM_UNSUPPORTED));
+
+        findPreference("sidebar_choose_apps").setOnPreferenceClickListener(this);
     }
 
     @Override
@@ -297,6 +300,10 @@ public class AdvancedFragment extends SettingsFragment {
                 break;
             case PREF_MANAGE_APP_DATA:
                 navigateTo(new ManageAppDataFragment());
+                break;
+            case "sidebar_choose_apps":
+                Intent sidebarIntent = U.getThemedIntent(getActivity(), SelectSidebarAppsActivity.class);
+                startActivity(sidebarIntent);
                 break;
         }
 

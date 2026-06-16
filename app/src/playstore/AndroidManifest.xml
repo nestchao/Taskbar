@@ -213,6 +213,12 @@
             android:name=".activity.dark.SelectAppActivityDark"
             android:theme="@style/Taskbar.Dialog.Blacklist.Dark"/>
         <activity
+            android:name=".activity.SelectSidebarAppsActivity"
+            android:theme="@style/Taskbar.Dialog.Blacklist"/>
+        <activity
+            android:name=".activity.dark.SelectSidebarAppsActivityDark"
+            android:theme="@style/Taskbar.Dialog.Blacklist.Dark"/>
+        <activity
             android:name=".activity.DesktopIconSelectAppActivity"
             android:theme="@style/Taskbar.Dialog.Blacklist"/>
         <activity
