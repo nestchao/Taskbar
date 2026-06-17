@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,6 +36,7 @@ import android.widget.ProgressBar;
 import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.adapter.SidebarAppsAdapter;
 import com.farmerbb.taskbar.util.BlacklistEntry;
+import com.farmerbb.taskbar.util.IconCache;
 import com.farmerbb.taskbar.util.U;
 
 import java.text.Collator;
@@ -96,12 +98,13 @@ public class SelectSidebarAppsActivity extends AppCompatActivity {
         protected SidebarAppsAdapter doInBackground(Void... params) {
             UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
             LauncherApps launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
+            PackageManager pm = getPackageManager();
 
             final List<UserHandle> userHandles = userManager.getUserProfiles();
-            final List<LauncherActivityInfo> list = new ArrayList<>();
+            final List<LauncherActivityInfo> appInfoList = new ArrayList<>();
 
             for(UserHandle handle : userHandles) {
-                list.addAll(launcherApps.getActivityList(null, handle));
+                appInfoList.addAll(launcherApps.getActivityList(null, handle));
             }
 
             // Remove any uninstalled apps from the sidebar apps list
@@ -114,7 +117,7 @@ public class SelectSidebarAppsActivity extends AppCompatActivity {
                 sidebarAppsList.add(entry.getPackageName());
             }
 
-            for(LauncherActivityInfo appInfo : list) {
+            for(LauncherActivityInfo appInfo : appInfoList) {
                 installedApps.add(appInfo.getApplicationInfo().packageName + "/" + appInfo.getName()
                         + ":" + userManager.getSerialNumberForUser(appInfo.getUser()));
                 installedApps.add(appInfo.getApplicationInfo().packageName + "/" + appInfo.getName());
@@ -126,7 +129,7 @@ public class SelectSidebarAppsActivity extends AppCompatActivity {
                     sidebarApps.removeSidebarApp(SelectSidebarAppsActivity.this, packageName);
             }
 
-            Collections.sort(list, (ai1, ai2) -> {
+            Collections.sort(appInfoList, (ai1, ai2) -> {
                 String label1;
                 String label2;
 
@@ -144,7 +147,7 @@ public class SelectSidebarAppsActivity extends AppCompatActivity {
             });
 
             final List<BlacklistEntry> entries = new ArrayList<>();
-            for(LauncherActivityInfo appInfo : list) {
+            for(LauncherActivityInfo appInfo : appInfoList) {
                 String label;
 
                 try {
@@ -161,14 +164,28 @@ public class SelectSidebarAppsActivity extends AppCompatActivity {
                         label));
             }
 
-            return new SidebarAppsAdapter(SelectSidebarAppsActivity.this,
-                    R.layout.tb_row_blacklist, entries);
+            SidebarAppsAdapter adapter = new SidebarAppsAdapter(
+                    SelectSidebarAppsActivity.this,
+                    R.layout.tb_row_sidebar_apps,
+                    entries);
+
+            // Pre-resolve LauncherActivityInfo and pre-populate icon cache
+            IconCache iconCache = IconCache.getInstance(SelectSidebarAppsActivity.this);
+            for(LauncherActivityInfo appInfo : appInfoList) {
+                String packageName = appInfo.getApplicationInfo().packageName;
+                adapter.putLauncherInfo(packageName, appInfo);
+                iconCache.getIcon(SelectSidebarAppsActivity.this, pm, appInfo);
+            }
+
+            return adapter;
         }
 
         @Override
         protected void onPostExecute(SidebarAppsAdapter adapter) {
             ListView appList = findViewById(R.id.sidebar_apps_list);
             appList.setAdapter(adapter);
+            appList.setFastScrollEnabled(true);
+            appList.setFastScrollAlwaysVisible(true);
 
             layout.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.GONE);
