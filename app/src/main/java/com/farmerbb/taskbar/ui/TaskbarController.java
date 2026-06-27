@@ -292,7 +292,8 @@ public class TaskbarController extends UIController {
         scrollView = layout.findViewById(R.id.taskbar_scrollview);
 
         if(isNewVerticalLayout) {
-            params.gravity = pref.getInt("sidebar_gravity", Gravity.TOP | Gravity.RIGHT);
+            int savedGravity = pref.getInt("sidebar_gravity", Gravity.TOP | Gravity.RIGHT);
+            params.gravity = Gravity.CENTER_VERTICAL | (savedGravity & Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK);
             params.x = 0;
             params.y = pref.getInt("sidebar_position_y", U.getDisplayInfo(context).height / 3);
 
@@ -393,17 +394,16 @@ public class TaskbarController extends UIController {
                 }
 
                 private void updatePosition(View v, float deltaY) {
-                    int newY = initialY + (int) deltaY;
                     int screenHeight = U.getDisplayInfo(context).height;
-                    params.y = Math.max(0, Math.min(newY, screenHeight - v.getHeight()));
+                    int centerY = screenHeight / 2;
+
+                    params.y = (int) (initialTouchY + deltaY) - centerY;
 
                     int screenWidth = U.getDisplayInfo(context).width;
-                    if(v.getRootView() != null) {
-                        if(initialTouchX < screenWidth / 2f) {
-                            params.gravity = Gravity.TOP | Gravity.LEFT;
-                        } else {
-                            params.gravity = Gravity.TOP | Gravity.RIGHT;
-                        }
+                    if(initialTouchX < screenWidth / 2f) {
+                        params.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+                    } else {
+                        params.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
                     }
 
                     SharedPreferences pref = U.getSharedPreferences(context);
