@@ -152,6 +152,7 @@ public class TaskbarController extends UIController {
 
     private int currentTaskbarPosition = 0;
     private boolean showHideAutomagically = false;
+    private boolean isNewVerticalLayout = false;
     private boolean positionIsVertical = false;
     private boolean dashboardEnabled = false;
     private boolean navbarButtonsEnabled = false;
@@ -256,7 +257,7 @@ public class TaskbarController extends UIController {
         // Determine where to show the taskbar on screen
         String taskbarPosition = TaskbarPosition.getTaskbarPosition(context);
         int layoutId = getTaskbarLayoutId(taskbarPosition);
-        boolean isNewVerticalLayout = layoutId == R.layout.tb_taskbar_vertical;
+        isNewVerticalLayout = layoutId == R.layout.tb_taskbar_vertical;
         positionIsVertical = TaskbarPosition.isVertical(taskbarPosition);
 
         int flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
@@ -1327,6 +1328,12 @@ public class TaskbarController extends UIController {
                                    ViewGroup.LayoutParams params,
                                    boolean fullLength,
                                    int numOfEntries) {
+        if (isNewVerticalLayout) {
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            return;
+        }
+
         DisplayInfo display = U.getDisplayInfo(context, true);
         int recentsSize = context.getResources().getDimensionPixelSize(R.dimen.tb_icon_size) * numOfEntries;
 
@@ -2045,6 +2052,11 @@ public class TaskbarController extends UIController {
                 return false;
             });
         }
+
+        int iconSize = (int) context.getResources().getDimension(R.dimen.tb_icon_size);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(iconSize, iconSize);
+        params.gravity = Gravity.CENTER_HORIZONTAL;
+        convertView.setLayoutParams(params);
 
         return convertView;
     }
