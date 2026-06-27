@@ -16,9 +16,9 @@
 
 <FrameLayout
     android:id="@+id/entry"
-    android:layout_width="wrap_content"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:layout_width="@dimen/tb_icon_size"
+    android:layout_height="@dimen/tb_icon_size"
+    android:layout_gravity="center_horizontal"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 

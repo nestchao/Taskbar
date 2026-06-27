@@ -10,13 +10,11 @@
 
     <LinearLayout
         android:id="@+id/sidebar_container"
-        android:layout_width="60dp"
-        android:layout_height="wrap_content"
+        android:layout_width="68dp"
+        android:layout_height="600dp" 
         android:background="@drawable/tb_capsule_bg"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
         android:layout_marginEnd="6dp"
         android:layout_marginStart="6dp"
         android:visibility="gone">
@@ -24,15 +22,42 @@
         <ScrollView
             android:id="@+id/taskbar_scrollview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:scrollbars="none">
 
+            <!-- This container holds both the list and the add button with 0 gap -->
             <LinearLayout
-                android:id="@+id/taskbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:gravity="center_horizontal" />
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:gravity="center_horizontal">
+
+                <!-- The Dynamic App List -->
+                <LinearLayout
+                    android:id="@+id/taskbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal" />
+
+                <!-- THE ADD BUTTON: Sits with 0 gap under the last icon -->
+                <ImageView
+                    android:id="@+id/add_app_button"
+                    android:layout_width="@dimen/tb_icon_size"
+                    android:layout_height="@dimen/tb_icon_size"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/tb_add_button_bg_inset"
+                    android:stateListAnimator="@animator/tb_button_press"
+                    android:src="@drawable/tb_add_button_icon" 
+                    android:tint="#FFFFFF"
+                    android:scaleType="centerInside"
+                    android:padding="8dp"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
         </ScrollView>
     </LinearLayout>
 

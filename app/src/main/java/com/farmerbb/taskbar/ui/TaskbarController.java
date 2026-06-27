@@ -95,6 +95,7 @@ import android.widget.TextView;
 import com.farmerbb.taskbar.BuildConfig;
 import com.farmerbb.taskbar.activity.HomeActivityDelegate;
 import com.farmerbb.taskbar.activity.MainActivity;
+import com.farmerbb.taskbar.activity.SelectSidebarAppsActivity;
 import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.activity.HomeActivity;
 import com.farmerbb.taskbar.activity.InvisibleActivityFreeform;
@@ -291,6 +292,9 @@ public class TaskbarController extends UIController {
         taskbar = layout.findViewById(R.id.taskbar);
         scrollView = layout.findViewById(R.id.taskbar_scrollview);
 
+        int backgroundTint = U.getBackgroundTint(context);
+        int accentColor = U.getAccentColor(context);
+
         if(isNewVerticalLayout) {
             int savedGravity = pref.getInt("sidebar_gravity", Gravity.TOP | Gravity.RIGHT);
             params.gravity = Gravity.CENTER_VERTICAL | (savedGravity & Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK);
@@ -415,10 +419,36 @@ public class TaskbarController extends UIController {
                     host.updateViewLayout(layout, params);
                 }
             });
-        }
 
-        int backgroundTint = U.getBackgroundTint(context);
-        int accentColor = U.getAccentColor(context);
+            ImageView addAppButton = layout.findViewById(R.id.add_app_button);
+            if(addAppButton != null) {
+                addAppButton.setVisibility(View.VISIBLE);
+
+                // Color the ripple dynamically using the current theme's accent color
+                android.graphics.drawable.Drawable background = addAppButton.getBackground();
+
+                // Extract the underlying drawable if it's wrapped in an InsetDrawable
+                if(background instanceof android.graphics.drawable.InsetDrawable) {
+                    background = ((android.graphics.drawable.InsetDrawable) background).getDrawable();
+                }
+
+                if(background instanceof android.graphics.drawable.RippleDrawable) {
+                    ((android.graphics.drawable.RippleDrawable) background).setColor(
+                            android.content.res.ColorStateList.valueOf(accentColor)
+                    );
+                }
+
+                addAppButton.setOnClickListener(v -> {
+                    // Collapse the sidebar container immediately
+                    setSidebarContainerVisible(false, host);
+
+                    Intent intent = U.getThemedIntent(context, SelectSidebarAppsActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
+                    U.sendBroadcast(context, ACTION_HIDE_START_MENU);
+                });
+            }
+        }
 
         if(!isNewVerticalLayout) {
             if(altButtonConfig) {
@@ -601,15 +631,13 @@ public class TaskbarController extends UIController {
                 break;
             case POSITION_BOTTOM_VERTICAL_LEFT:
             case POSITION_BOTTOM_VERTICAL_RIGHT:
+            case POSITION_TOP_VERTICAL_LEFT:
+            case POSITION_TOP_VERTICAL_RIGHT:
                 layoutId = R.layout.tb_taskbar_vertical;
                 break;
             case POSITION_BOTTOM_RIGHT:
             case POSITION_TOP_RIGHT:
                 layoutId = R.layout.tb_taskbar_right;
-                break;
-            case POSITION_TOP_VERTICAL_LEFT:
-            case POSITION_TOP_VERTICAL_RIGHT:
-                layoutId = R.layout.tb_taskbar_top_vertical;
                 break;
         }
         return layoutId;
@@ -1301,6 +1329,12 @@ public class TaskbarController extends UIController {
                                    int numOfEntries) {
         DisplayInfo display = U.getDisplayInfo(context, true);
         int recentsSize = context.getResources().getDimensionPixelSize(R.dimen.tb_icon_size) * numOfEntries;
+
+        // Reserve height for the "+" button when in a vertical layout
+        if(TaskbarPosition.isVertical(context)) {
+            recentsSize += context.getResources().getDimensionPixelSize(R.dimen.tb_icon_size);
+        }
+
         float maxRecentsSize = fullLength ? Float.MAX_VALUE : recentsSize;
         int maxScreenSize;
 
