@@ -61,10 +61,18 @@
         </ScrollView>
     </LinearLayout>
 
-    <View
+    <FrameLayout
         android:id="@+id/sidebar_handle"
-        android:layout_width="8dp"
-        android:layout_height="80dp"
-        android:background="@drawable/tb_handle_bg" />
+        android:layout_width="24dp"
+        android:layout_height="120dp"
+        android:gravity="center">
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+            android:background="@drawable/tb_handle_bg" />
+
+    </FrameLayout>
 
 </LinearLayout>
