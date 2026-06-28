@@ -27,8 +27,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.app.AlarmManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.service.quicksettings.TileService;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -37,11 +39,28 @@ import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.util.DependencyUtils;
 import com.farmerbb.taskbar.util.U;
 
+import java.io.File;
+
 import static com.farmerbb.taskbar.util.Constants.*;
 
 public class NotificationService extends Service {
 
     private boolean isHidden = true;
+
+    private void setTaskbarActiveStateFile(boolean active) {
+        try {
+            File stateFile = new File(getFilesDir(), "taskbar_active");
+            if (active) {
+                if (!stateFile.exists()) {
+                    stateFile.createNewFile();
+                }
+            } else {
+                if (stateFile.exists()) {
+                    stateFile.delete();
+                }
+            }
+        } catch (Exception ignored) {}
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -94,6 +113,8 @@ public class NotificationService extends Service {
         SharedPreferences pref = U.getSharedPreferences(this);
         if(pref.getBoolean(PREF_TASKBAR_ACTIVE, false)) {
             if(U.canDrawOverlays(this)) {
+                setTaskbarActiveStateFile(true);
+
                 isHidden = U.getSharedPreferences(this).getBoolean(PREF_IS_HIDDEN, false);
 
                 Intent intent = new Intent(this, MainActivity.class);
@@ -174,7 +195,36 @@ public class NotificationService extends Service {
     }
 
     @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+
+        SharedPreferences pref = U.getSharedPreferences(this);
+        if (pref.getBoolean(PREF_TASKBAR_ACTIVE, false) && !pref.getBoolean(PREF_IS_HIDDEN, false)) {
+            Intent startIntent = new Intent(this, com.farmerbb.taskbar.receiver.StartReceiver.class);
+            startIntent.setPackage(getPackageName());
+
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                    this,
+                    1,
+                    startIntent,
+                    PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE
+            );
+
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            if (alarmManager != null) {
+                alarmManager.set(
+                        AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        SystemClock.elapsedRealtime() + 1000,
+                        pendingIntent
+                );
+            }
+        }
+    }
+
+    @Override
     public void onDestroy() {
+        setTaskbarActiveStateFile(false);
+
         SharedPreferences pref = U.getSharedPreferences(this);
         if(pref.getBoolean(PREF_IS_RESTARTING, false))
             pref.edit().remove(PREF_IS_RESTARTING).apply();

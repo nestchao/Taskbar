@@ -310,6 +310,7 @@
         <service
             android:name=".service.PowerMenuService"
             android:enabled="true"
+            android:process=":accessibility"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:exported="true">
             <intent-filter>

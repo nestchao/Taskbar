@@ -24,9 +24,13 @@ import android.view.accessibility.AccessibilityEvent;
 import com.farmerbb.taskbar.R;
 import com.farmerbb.taskbar.util.U;
 
+import java.io.File;
+
 import static com.farmerbb.taskbar.util.Constants.*;
 
 public class PowerMenuService extends AccessibilityService {
+
+    private long lastWatchdogCheck = 0;
 
     private final BroadcastReceiver powerMenuReceiver = new BroadcastReceiver() {
         @Override
@@ -38,10 +42,36 @@ public class PowerMenuService extends AccessibilityService {
     };
 
     @Override
-    public void onAccessibilityEvent(AccessibilityEvent event) {}
+    protected void onServiceConnected() {
+        super.onServiceConnected();
+        runWatchdogCheck();
+    }
+
+    @Override
+    public void onAccessibilityEvent(AccessibilityEvent event) {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastWatchdogCheck > 10000) {
+            lastWatchdogCheck = currentTime;
+            runWatchdogCheck();
+        }
+    }
 
     @Override
     public void onInterrupt() {}
+
+    private void runWatchdogCheck() {
+        Context context = getApplicationContext();
+        try {
+            File stateFile = new File(context.getFilesDir(), "taskbar_active");
+            if (stateFile.exists()) {
+                if (!U.isServiceRunning(context, NotificationService.class)) {
+                    Intent startIntent = new Intent(context, NotificationService.class);
+                    startIntent.putExtra(EXTRA_START_SERVICES, true);
+                    U.startForegroundService(context, startIntent);
+                }
+            }
+        } catch (Exception ignored) {}
+    }
 
     @Override
     public void onCreate() {
