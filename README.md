@@ -6,6 +6,8 @@ Taskbar supports Android 10's Desktop Mode, allowing you to connect your compati
 
 Taskbar is also supported on Android TV (sideloaded) and Chrome OS - use Taskbar as a secondary Android app launcher on your Chromebook, or turn your Nvidia Shield into an Android-powered PC!
 
+This is a modified fork with an additional vertical sidebar mode.
+
 ## Features
 * Start menu - shows you all applications installed on the device, configurable as a list or as a grid
 * Recent apps tray - shows your most recently used apps and lets you easily switch between them
@@ -14,6 +16,16 @@ Taskbar is also supported on Android TV (sideloaded) and Chrome OS - use Taskbar
 * Pin favorite apps or block the ones you don't want to see
 * Designed with keyboard and mouse in mind
 * 100% free, open source, and no ads
+
+#### Sidebar mode
+A floating vertical capsule sidebar that sits at the edge of your screen:
+
+* **Sidebar handle** - a slim draggable handle on the left or right edge of the screen; press and hold to reveal the app capsule
+* **App capsule** - floating vertical panel with your selected apps, A-Z fast scroller, and search
+* **App selection** - manually pick which apps appear in the sidebar via the "+" button
+* **Drag to reposition** - the entire sidebar can be dragged vertically and its position is remembered
+* **Auto-hide** - tap outside the sidebar to collapse it automatically
+* **System gesture safe** - the handle area is excluded from Android 10+ back gesture to prevent accidental triggers
 
 #### Desktop mode (Android 10+, requires external display)
 Taskbar supports Android 10's built-in desktop mode functionality. You can connect your compatible Android 10+ device to an external display and run apps in resizable windows, with Taskbar's interface running on your external display and your existing launcher still running on your phone.
