@@ -63,7 +63,7 @@
 
     <FrameLayout
         android:id="@+id/sidebar_handle"
-        android:layout_width="48dp"
+        android:layout_width="24dp"
         android:layout_height="120dp"
         android:gravity="center">
 
